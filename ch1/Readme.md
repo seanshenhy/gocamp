@@ -8,12 +8,14 @@ git clone --depth=1 https://github.com/seanshenhy/gocamp.git
 ```
 cd projectName
 ```
+4 修改数据库访问地址
+见model目录下的db.go代码文件
 
-4 启动服务
+5 启动服务
 ```
 go run main.go
 ```
-5 输入URL地址
+6 输入URL地址
 ```
 http://127.0.0.1:8080/userinfo
 ```
