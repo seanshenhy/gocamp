@@ -1,0 +1,135 @@
+basePath: /
+definitions:
+  user.loginParam:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  user.registerParam:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  user.verifyParam:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
+info:
+  contact:
+    email: shenhy
+    name: shenhy
+  description: bbs论坛
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://github.com/swaggo/swag
+  title: bbs
+  version: "1.1"
+paths:
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录接口
+      parameters:
+      - description: 登录参数
+        in: body
+        name: loginParam
+        required: true
+        schema:
+          $ref: '#/definitions/user.loginParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功
+          schema:
+            type: string
+      summary: 用户登录
+      tags:
+      - user
+  /user/logout:
+    get:
+      consumes:
+      - application/json
+      description: 用户登出接口
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登出成功
+          schema:
+            type: string
+      summary: 用户登出
+      tags:
+      - user
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: 用户注册接口
+      parameters:
+      - description: 注册参数
+        in: body
+        name: registerParam
+        required: true
+        schema:
+          $ref: '#/definitions/user.registerParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 注册成功
+          schema:
+            type: string
+      summary: 用户注册
+      tags:
+      - user
+  /user/register/verify:
+    get:
+      consumes:
+      - application/json
+      description: 用户验证接口
+      parameters:
+      - description: 验证参数
+        in: body
+        name: verifyParam
+        required: true
+        schema:
+          $ref: '#/definitions/user.verifyParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 验证成功
+          schema:
+            type: string
+      summary: 用户验证
+      tags:
+      - user
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+  BasicAuth:
+    type: basic
+swagger: "2.0"
+x-extension-openapi:
+  example: value on a json format
