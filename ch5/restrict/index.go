@@ -6,28 +6,30 @@ import (
 )
 
 type slideWin struct {
-	width int
+	cap   int
+	unit  time.Duration
 	queue []time.Time
 	mu    sync.Mutex
 }
 
-func New(num int) (sw *slideWin) {
+func New(cap int, unit time.Duration) (sw *slideWin) {
 	return &slideWin{
-		width: num,
-		queue: make([]time.Time, 0, num),
+		cap:   cap,
+		unit:  unit,
+		queue: make([]time.Time, 0, cap),
 		mu:    sync.Mutex{},
 	}
 }
 
-func (q *slideWin) Add() bool {
+func (q *slideWin) IsPass() bool {
 	q.mu.Lock()
 	defer q.mu.Unlock()
-	if len(q.queue) < q.width {
+	if len(q.queue) < q.cap {
 		q.queue = append(q.queue, time.Now())
 		return true
 	}
 	first := q.queue[0]
-	if time.Now().Sub(first) < 1*time.Second {
+	if time.Now().Sub(first) < q.unit {
 		return false
 	}
 	q.queue = append(q.queue[1:], time.Now())

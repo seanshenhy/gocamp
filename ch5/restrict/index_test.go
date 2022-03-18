@@ -18,7 +18,7 @@ func TestIndex(t *testing.T) {
 	for i := 0; i < c; i++ {
 		go func(wg *sync.WaitGroup) {
 			defer wg.Done()
-			if !d.Add() {
+			if !d.IsPass() {
 				time.Sleep(1 * time.Second)
 				fmt.Println("不能请求")
 				return

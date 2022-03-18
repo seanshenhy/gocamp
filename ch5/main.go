@@ -10,10 +10,10 @@ import (
 func main() {
 	sw := restrict.New(3)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if sw.Add() {
-			fmt.Fprintf(w,"请求成功")
+		if sw.IsPass() {
+			fmt.Fprintf(w, "请求成功")
 		} else {
-			fmt.Fprintf(w,"请求失败")
+			fmt.Fprintf(w, "请求失败")
 		}
 	})
 	http.ListenAndServe(":8000", nil)
