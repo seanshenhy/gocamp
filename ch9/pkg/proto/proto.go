@@ -1,7 +1,6 @@
 package proto
 
 import (
-	"bufio"
 	"encoding/binary"
 )
 
@@ -28,14 +27,16 @@ const (
 	// 序列号长度
 	sequenceLen 	= 4
 	// 包总长度
-	rawPacketLen = packetLen + headerLen + versionLen + operationLen + sequenceLen
+	RawPacketLen = packetLen + headerLen + versionLen + operationLen + sequenceLen
 
 	// 偏移位置
-	packetOffset = 0
-	headerOffset = packetOffset + packetLen
-	versionOffset = headerOffset + headerLen
-	operationOffset = versionOffset + versionLen
-	sequenceOffset = operationOffset + operationLen
+	PacketOffset = 0
+	HeaderOffset = PacketOffset + packetLen
+	VersionOffset = HeaderOffset + headerLen
+	OperationOffset = VersionOffset + versionLen
+	SequenceOffset = OperationOffset + operationLen
+
+	MaxBufferSize = int(1 << 8)
 )
 type Proto struct {
 	Version uint16
@@ -53,37 +54,30 @@ func New(version int) *Proto{
 // Encode 将消息编码
 func (p *Proto)Encode(message string) ([]byte, error) {
 	// 包长度
-	packetLen := len([]byte(message)) + rawPacketLen
+	packetLen := len([]byte(message)) + RawPacketLen
 	// 创建缓冲区
 	wb := make([]byte, packetLen)
 	// 写入包头信息
-	binary.BigEndian.PutUint32(wb[packetOffset:headerOffset], uint32(packetLen))
+	binary.BigEndian.PutUint32(wb[PacketOffset:HeaderOffset], uint32(packetLen))
 	// 写入header
-	binary.BigEndian.PutUint16(wb[headerOffset:versionOffset], rawPacketLen)
+	binary.BigEndian.PutUint16(wb[HeaderOffset:VersionOffset], RawPacketLen)
 	// 写入版本
-	binary.BigEndian.PutUint16(wb[versionOffset:operationOffset], versionLen)
+	binary.BigEndian.PutUint16(wb[VersionOffset:OperationOffset], versionLen)
 	// 写入操作类型
-	binary.BigEndian.PutUint32(wb[operationOffset:sequenceOffset], operationLen)
+	binary.BigEndian.PutUint32(wb[OperationOffset:SequenceOffset], operationLen)
 	// 写入序列号
-	binary.BigEndian.PutUint32(wb[sequenceOffset:rawPacketLen], sequenceLen)
+	binary.BigEndian.PutUint32(wb[SequenceOffset:RawPacketLen], sequenceLen)
 	// 写入body
 	byteBody := []byte(message)
-	copy(wb[rawPacketLen:], byteBody)
+	copy(wb[RawPacketLen:], byteBody)
 	return wb, nil
 }
 
 // Encode 将消息编码
-func (p *Proto)Decode(reader *bufio.Reader) (message string, err error) {
-	buf, err := reader.Peek(rawPacketLen)
-	if err != nil {
-		return "", err
-	}
-	_packetLen := binary.BigEndian.Uint32(buf[packetOffset:headerOffset])
-	//_headerLen := binary.BigEndian.Uint16(buf[headerOffset:versionOffset])
-	pack := make([]byte, _packetLen)
-	_, err = reader.Read(pack)
-	if err != nil {
-		return "", err
-	}
-	return string(pack[rawPacketLen:]), nil
+func (p *Proto)Decode(data []byte) (message string, err error) {
+	//包头转为string
+	//head := string(data[:RawPacketLen])
+
+	//将包体转为string
+	return string(data[RawPacketLen:]), nil
 }

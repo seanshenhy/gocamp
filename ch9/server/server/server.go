@@ -1,10 +1,9 @@
 package server
 
 import (
-	"bufio"
 	"fmt"
 	"gocamp/ch9/pkg/proto"
-	"io"
+	"gocamp/ch9/pkg/reader"
 	"log"
 	"net"
 )
@@ -26,24 +25,36 @@ func New(network, addr string) *Server {
 
 func (s *Server)handler(conn net.Conn)  {
 	defer conn.Close()
-	reader := bufio.NewReader(conn)
-	for  {
-		msg, err := s.proto.Decode(reader)
-		if err == io.EOF {
-			return
+	//创建接收数据的通道
+	acceptData := make(chan string, 10)
+	defer close(acceptData)
+	go s.accept(acceptData)
+
+	reader := reader.New(conn)
+	err := reader.Read(acceptData)
+	if err != nil {
+		fmt.Println("read data error:", err)
+	}
+	//buffer := make([]byte, 1024)
+	//for  {
+	//	n, err := conn.Read(buffer)
+	//	fmt.Println(n,err)
+	//	if err == io.EOF {
+	//		break
+	//	}
+	//	time.Sleep(time.Second)
+	//}
+}
+func (s *Server)accept(acceptData chan string)  {
+	for {
+		value, isOk := <- acceptData
+		if !isOk {
+			break
 		}
-		if err != nil {
-			fmt.Println("decode msg failed, err:", err)
-			return
-		}
-		if msg == "" {
-			fmt.Printf("recive clientn error：%v\n", err)
-			return
-		}
-		fmt.Printf("收到client发来的数：%v\n", msg)
+		v,_ := s.proto.Decode([]byte(value))
+		fmt.Println("接收数据：",v)
 	}
 }
-
 func (s *Server)Listen()  {
 	listener, err := net.Listen(s.network, s.addr)
 	if err != nil {
@@ -53,6 +64,7 @@ func (s *Server)Listen()  {
 }
 
 func (s *Server)Run()  {
+	//go client.Send()
 	log.Printf("%v server start %s", s.network, s.addr)
 	for {
 		conn, err := s.listener.Accept()
